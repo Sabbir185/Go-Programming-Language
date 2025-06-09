@@ -75,4 +75,6 @@ func outer() func() {
 
 So again, Closure holo ekta function, ja tar parent function-er variable gulo ke mone rakhte pare ebong use korte pare, jodio parent function ta already execute hoye geche. Ei rokom function ke closure bole.
 
+Heap e momorized kore rakhe.
+
 */
