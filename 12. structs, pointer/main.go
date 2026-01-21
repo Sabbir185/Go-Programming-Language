@@ -55,6 +55,14 @@ func main() {
 	contactPerson.updateName("Sabbir")
 	contactPerson.print()
 
+	var dept string = "Engineering"
+	funcDept(&dept)
+	fmt.Println("Department: ", dept)
+
+}
+
+func funcDept(d *string) {
+	*d = "CSE"
 }
 
 func (contactPointer *Person) updateName(firstName string) {
@@ -76,3 +84,4 @@ Pointers in Go:
 	Value type: int, float, string, bool, arrays, structs
 
 */
+
