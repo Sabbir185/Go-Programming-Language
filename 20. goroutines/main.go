@@ -6,7 +6,7 @@ import (
 )
 
 // A goroutine is a lightweight thread managed by the Go runtime.
-// Goroutines in Go let functions run concurrently, using less memory than traditional threads. 
+// Goroutines in Go let functions run concurrently, using less memory than traditional threads.
 // Every Go program starts with a main Goroutine, and if it exits, all others stop.
 
 func task(ind int) {
