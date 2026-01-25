@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/smtp"
 	"sync"
+	"time"
 )
 
 func emailWorker(workerid int, ch chan User, wg *sync.WaitGroup) {
@@ -33,6 +34,8 @@ func emailWorker(workerid int, ch chan User, wg *sync.WaitGroup) {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		time.Sleep(time.Millisecond * 50)
 
 		fmt.Printf("Worker %d: Sent email to %s \n", workerid, user.Email)
 	}

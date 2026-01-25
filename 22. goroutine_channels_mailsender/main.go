@@ -25,6 +25,23 @@ func main() {
 	}
 
 	wg.Wait()
+
+	/*
+		// this approach is not efficient for large number of users
+		// because it will create a new goroutine for each user
+		// better to use worker pool approach as above
+
+		ind := 1
+		var wg sync.WaitGroup
+
+		for user := range ch {
+			wg.Add(1)
+			go sendEmail(ind, user, &wg)
+			ind++
+		}
+
+		wg.Wait()
+	*/
 }
 
 func executeTemplate(u User) (string, error) {
