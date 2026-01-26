@@ -14,7 +14,7 @@ func aboutMeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "About Me: I am a Go web server.")
 }
 
-type Products struct {
+type Product struct {
 	ID          int     `json:"id"`
 	Title       string  `json:"title"`
 	Price       float64 `json:"price"`
@@ -22,7 +22,7 @@ type Products struct {
 	ImgUrl      string  `json:"imgUrl"`
 }
 
-var productlist []Products
+var productlist []Product
 
 func getProductHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -37,12 +37,42 @@ func getProductHandler(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(productlist)
 }
 
+func createProductHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(200)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid Request, not found!", 400)
+		return
+	}
+
+	var newProduct Product
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&newProduct)
+
+	newProduct.ID = len(productlist) + 1
+	productlist = append(productlist, newProduct)
+
+	w.WriteHeader(201)
+	encoder := json.NewEncoder(w)
+	encoder.Encode(newProduct)
+}
+
 func main() {
 	mux := http.NewServeMux() // router
 
 	mux.HandleFunc("/hello", handleHelloHandler) // route
 	mux.HandleFunc("/about", aboutMeHandler)     // route
 	mux.HandleFunc("/products", getProductHandler)
+	mux.HandleFunc("/products/create", createProductHandler)
 
 	fmt.Println("Starting server on :3000")
 	err := http.ListenAndServe(":3000", mux)
@@ -52,35 +82,35 @@ func main() {
 }
 
 func init() {
-	p1 := Products{
+	p1 := Product{
 		ID:          1,
 		Title:       "Product 1",
 		Price:       19.99,
 		Description: "This is the first product.",
 		ImgUrl:      "http://example.com/product1.jpg",
 	}
-	p2 := Products{
+	p2 := Product{
 		ID:          2,
 		Title:       "Product 2",
 		Price:       29.99,
 		Description: "This is the second product.",
 		ImgUrl:      "http://example.com/product2.jpg",
 	}
-	p3 := Products{
+	p3 := Product{
 		ID:          3,
 		Title:       "Product 3",
 		Price:       39.99,
 		Description: "This is the third product.",
 		ImgUrl:      "http://example.com/product3.jpg",
 	}
-	p4 := Products{
+	p4 := Product{
 		ID:          4,
 		Title:       "Product 4",
 		Price:       49.99,
 		Description: "This is the fourth product.",
 		ImgUrl:      "http://example.com/product4.jpg",
 	}
-	p5 := Products{
+	p5 := Product{
 		ID:          5,
 		Title:       "Product 5",
 		Price:       59.99,
