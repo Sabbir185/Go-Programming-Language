@@ -25,23 +25,18 @@ type Product struct {
 var productlist []Product
 
 func getProductHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("content-Type", "application/json")
+	handleHeaders(w)
 
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid Request, not found!", 400)
 		return
 	}
-
-	encoder := json.NewEncoder(w)
-	encoder.Encode(productlist)
+	
+	handleJsonResponse(w, productlist, 200)
 }
 
 func createProductHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Content-Type", "application/json")
+	handleHeaders(w)
 
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(200)
@@ -61,9 +56,20 @@ func createProductHandler(w http.ResponseWriter, r *http.Request) {
 	newProduct.ID = len(productlist) + 1
 	productlist = append(productlist, newProduct)
 
-	w.WriteHeader(201)
+	handleJsonResponse(w, newProduct, 201)
+}
+
+func handleHeaders(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json")
+}
+
+func handleJsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {
+	w.WriteHeader(statusCode)
 	encoder := json.NewEncoder(w)
-	encoder.Encode(newProduct)
+	encoder.Encode(data)
 }
 
 func main() {
