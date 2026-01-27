@@ -25,19 +25,14 @@ type Product struct {
 var productlist []Product
 
 func getProductHandler(w http.ResponseWriter, r *http.Request) {
-	handleHeaders(w)
-
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid Request, not found!", 400)
 		return
 	}
-	
 	handleJsonResponse(w, productlist, 200)
 }
 
 func createProductHandler(w http.ResponseWriter, r *http.Request) {
-	handleHeaders(w)
-
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(200)
 		return
@@ -75,13 +70,17 @@ func handleJsonResponse(w http.ResponseWriter, data interface{}, statusCode int)
 func main() {
 	mux := http.NewServeMux() // router
 
-	mux.HandleFunc("/hello", handleHelloHandler) // route
-	mux.HandleFunc("/about", aboutMeHandler)     // route
-	mux.HandleFunc("/products", getProductHandler)
-	mux.HandleFunc("/products/create", createProductHandler)
+	// advanced route and middleware
+	mux.Handle("GET /hello", http.HandlerFunc(handleHelloHandler))
+	mux.Handle("GET /about", http.HandlerFunc(aboutMeHandler))
+	mux.Handle("GET /products", corsMiddleware(http.HandlerFunc(getProductHandler)))
+	mux.Handle("POST /products/create", corsMiddleware(http.HandlerFunc(createProductHandler)))
 
-	fmt.Println("Starting server on :3000")
-	err := http.ListenAndServe(":3000", mux)
+	// old style route
+	// mux.HandleFunc("/products/create", createProductHandler)
+
+	fmt.Println("Starting server on :8080")
+	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
@@ -124,4 +123,16 @@ func init() {
 		ImgUrl:      "http://example.com/product5.jpg",
 	}
 	productlist = append(productlist, p1, p2, p3, p4, p5)
+}
+
+// Middleware
+func corsMiddleware(next http.Handler) http.Handler {
+	handleCors := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(handleCors)
 }
