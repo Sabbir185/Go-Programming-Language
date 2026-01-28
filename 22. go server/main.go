@@ -25,24 +25,10 @@ type Product struct {
 var productlist []Product
 
 func getProductHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid Request, not found!", 400)
-		return
-	}
 	handleJsonResponse(w, productlist, 200)
 }
 
 func createProductHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(200)
-		return
-	}
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid Request, not found!", 400)
-		return
-	}
-
 	var newProduct Product
 
 	decoder := json.NewDecoder(r.Body)
@@ -76,11 +62,10 @@ func main() {
 	mux.Handle("GET /products", corsMiddleware(http.HandlerFunc(getProductHandler)))
 	mux.Handle("POST /products/create", corsMiddleware(http.HandlerFunc(createProductHandler)))
 
-	// old style route
-	// mux.HandleFunc("/products/create", createProductHandler)
+	globalRouter := globalRouter(mux)
 
 	fmt.Println("Starting server on :8080")
-	err := http.ListenAndServe(":8080", mux)
+	err := http.ListenAndServe(":8080", globalRouter)
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
@@ -135,4 +120,21 @@ func corsMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(handleCors)
+}
+
+func globalRouter(mux *http.ServeMux) http.Handler {
+	handleAllReq := func(w http.ResponseWriter, r *http.Request) {
+		// handle CORS preflight requests
+		if r.Method == "OPTIONS" {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(200)
+		} else {
+			// other requests
+			mux.ServeHTTP(w, r)
+		}
+	}
+	return http.HandlerFunc(handleAllReq)
 }
