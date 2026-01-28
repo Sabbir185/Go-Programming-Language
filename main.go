@@ -1,9 +1,9 @@
 package main
 
 import (
+	"ecommerce/database"
 	"ecommerce/global_router"
 	"ecommerce/handlers"
-	"ecommerce/product"
 	"fmt"
 	"net/http"
 )
@@ -26,40 +26,40 @@ func main() {
 }
 
 func init() {
-	p1 := product.Product{
+	p1 := database.Product{
 		ID:          1,
 		Title:       "Product 1",
 		Price:       19.99,
 		Description: "This is the first product.",
 		ImgUrl:      "http://example.com/product1.jpg",
 	}
-	p2 := product.Product{
+	p2 := database.Product{
 		ID:          2,
 		Title:       "Product 2",
 		Price:       29.99,
 		Description: "This is the second product.",
 		ImgUrl:      "http://example.com/product2.jpg",
 	}
-	p3 := product.Product{
+	p3 := database.Product{
 		ID:          3,
 		Title:       "Product 3",
 		Price:       39.99,
 		Description: "This is the third product.",
 		ImgUrl:      "http://example.com/product3.jpg",
 	}
-	p4 := product.Product{
+	p4 := database.Product{
 		ID:          4,
 		Title:       "Product 4",
 		Price:       49.99,
 		Description: "This is the fourth product.",
 		ImgUrl:      "http://example.com/product4.jpg",
 	}
-	p5 := product.Product{
+	p5 := database.Product{
 		ID:          5,
 		Title:       "Product 5",
 		Price:       59.99,
 		Description: "This is the fifth product.",
 		ImgUrl:      "http://example.com/product5.jpg",
 	}
-	product.Productlist = append(product.Productlist, p1, p2, p3, p4, p5)
+	database.Productlist = append(database.Productlist, p1, p2, p3, p4, p5)
 }
