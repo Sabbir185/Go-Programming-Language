@@ -1,68 +1,22 @@
 package main
 
 import (
-	"encoding/json"
+	"ecommerce/global_router"
+	"ecommerce/handlers"
+	"ecommerce/product"
 	"fmt"
 	"net/http"
 )
 
-func handleHelloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello World")
-}
-
-func aboutMeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "About Me: I am a Go web server.")
-}
-
-type Product struct {
-	ID          int     `json:"id"`
-	Title       string  `json:"title"`
-	Price       float64 `json:"price"`
-	Description string  `json:"description"`
-	ImgUrl      string  `json:"imgUrl"`
-}
-
-var productlist []Product
-
-func getProductHandler(w http.ResponseWriter, r *http.Request) {
-	handleJsonResponse(w, productlist, 200)
-}
-
-func createProductHandler(w http.ResponseWriter, r *http.Request) {
-	var newProduct Product
-
-	decoder := json.NewDecoder(r.Body)
-	decoder.Decode(&newProduct)
-
-	newProduct.ID = len(productlist) + 1
-	productlist = append(productlist, newProduct)
-
-	handleJsonResponse(w, newProduct, 201)
-}
-
-func handleHeaders(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Content-Type", "application/json")
-}
-
-func handleJsonResponse(w http.ResponseWriter, data interface{}, statusCode int) {
-	w.WriteHeader(statusCode)
-	encoder := json.NewEncoder(w)
-	encoder.Encode(data)
-}
-
 func main() {
-	mux := http.NewServeMux() // router
+	// router
+	mux := http.NewServeMux()
 
 	// advanced route and middleware
-	mux.Handle("GET /hello", http.HandlerFunc(handleHelloHandler))
-	mux.Handle("GET /about", http.HandlerFunc(aboutMeHandler))
-	mux.Handle("GET /products", corsMiddleware(http.HandlerFunc(getProductHandler)))
-	mux.Handle("POST /products/create", corsMiddleware(http.HandlerFunc(createProductHandler)))
+	mux.Handle("GET /products", http.HandlerFunc(handlers.GetProductHandler))
+	mux.Handle("POST /products/create", http.HandlerFunc(handlers.CreateProductHandler))
 
-	globalRouter := globalRouter(mux)
+	globalRouter := global_router.GlobalRouter(mux)
 
 	fmt.Println("Starting server on :8080")
 	err := http.ListenAndServe(":8080", globalRouter)
@@ -72,69 +26,40 @@ func main() {
 }
 
 func init() {
-	p1 := Product{
+	p1 := product.Product{
 		ID:          1,
 		Title:       "Product 1",
 		Price:       19.99,
 		Description: "This is the first product.",
 		ImgUrl:      "http://example.com/product1.jpg",
 	}
-	p2 := Product{
+	p2 := product.Product{
 		ID:          2,
 		Title:       "Product 2",
 		Price:       29.99,
 		Description: "This is the second product.",
 		ImgUrl:      "http://example.com/product2.jpg",
 	}
-	p3 := Product{
+	p3 := product.Product{
 		ID:          3,
 		Title:       "Product 3",
 		Price:       39.99,
 		Description: "This is the third product.",
 		ImgUrl:      "http://example.com/product3.jpg",
 	}
-	p4 := Product{
+	p4 := product.Product{
 		ID:          4,
 		Title:       "Product 4",
 		Price:       49.99,
 		Description: "This is the fourth product.",
 		ImgUrl:      "http://example.com/product4.jpg",
 	}
-	p5 := Product{
+	p5 := product.Product{
 		ID:          5,
 		Title:       "Product 5",
 		Price:       59.99,
 		Description: "This is the fifth product.",
 		ImgUrl:      "http://example.com/product5.jpg",
 	}
-	productlist = append(productlist, p1, p2, p3, p4, p5)
-}
-
-// Middleware
-func corsMiddleware(next http.Handler) http.Handler {
-	handleCors := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-		w.Header().Set("Content-Type", "application/json")
-		next.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(handleCors)
-}
-
-func globalRouter(mux *http.ServeMux) http.Handler {
-	handleAllReq := func(w http.ResponseWriter, r *http.Request) {
-		// handle CORS preflight requests
-		if r.Method == "OPTIONS" {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(200)
-		} else {
-			// other requests
-			mux.ServeHTTP(w, r)
-		}
-	}
-	return http.HandlerFunc(handleAllReq)
+	product.Productlist = append(product.Productlist, p1, p2, p3, p4, p5)
 }
