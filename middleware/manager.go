@@ -25,9 +25,6 @@ func (mngr *Manager) With(next http.Handler, middlewares ...Middleware) http.Han
 	for _, middleware := range middlewares {
 		n = middleware(n)
 	}
-	// for _, globalMiddleware := range mngr.globalMiddlewares {
-	// 	n = globalMiddleware(n)
-	// }
 	return n
 }
 

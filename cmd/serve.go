@@ -7,9 +7,6 @@ import (
 )
 
 func Serve() {
-	// HTTP Multiplexer --> router
-	mux := http.NewServeMux()
-
 	// common middleware
 	manager := middleware.NewManager()
 	manager.Use(
@@ -17,6 +14,9 @@ func Serve() {
 		middleware.Cors,
 		middleware.Logger,
 	)
+
+	// HTTP Multiplexer --> router
+	mux := http.NewServeMux()
 	wrapMux := manager.WrapMux(mux)
 
 	initRoutes(mux, manager)
