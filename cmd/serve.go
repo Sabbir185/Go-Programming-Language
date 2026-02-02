@@ -11,11 +11,10 @@ func Serve() {
 	manager := middleware.NewManager()
 	manager.Use(middleware.CorsWithPreflight, middleware.Logger, middleware.GeneralPrint)
 
-	mux := http.NewServeMux() // router
+	// HTTP Multiplexer --> router
+	mux := http.NewServeMux()
 
 	initRoutes(mux, manager)
-
-	// globalRouter := middleware.CorsWithPreflight(mux)
 
 	fmt.Println("Starting server on :8080")
 	err := http.ListenAndServe(":8080", mux)
