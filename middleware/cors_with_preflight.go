@@ -1,10 +1,9 @@
-package global_router
+package middleware
 
 import "net/http"
 
-// Middleware
-func GlobalRouter(mux *http.ServeMux) http.Handler {
-	handleAllReq := func(w http.ResponseWriter, r *http.Request) {
+func CorsWithPreflight(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -17,7 +16,6 @@ func GlobalRouter(mux *http.ServeMux) http.Handler {
 		}
 
 		// other requests
-		mux.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(handleAllReq)
+		next.ServeHTTP(w, r)
+	})
 }

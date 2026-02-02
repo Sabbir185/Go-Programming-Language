@@ -9,10 +9,9 @@ type Manager struct {
 }
 
 func NewManager() *Manager {
-	mngr := Manager{
+	return &Manager{
 		globalMiddlewares: make([]Middleware, 0),
 	}
-	return &mngr
 }
 
 func (mngr *Manager) Use(middlewares ...Middleware) {
@@ -21,6 +20,9 @@ func (mngr *Manager) Use(middlewares ...Middleware) {
 
 func (mngr *Manager) With(next http.Handler, middlewares ...Middleware) http.Handler {
 	n := next
+	for _, globalMiddleware := range mngr.globalMiddlewares {
+		n = globalMiddleware(n)
+	}
 	for _, middleware := range middlewares {
 		n = middleware(n)
 	}
