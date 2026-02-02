@@ -11,7 +11,6 @@ func initRoutes(mux *http.ServeMux, manager *middleware.Manager) {
 		"GET /products",
 		manager.With(
 			http.HandlerFunc(handlers.GetProducts),
-			middleware.GeneralPrint,
 		),
 	)
 
