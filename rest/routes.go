@@ -29,9 +29,9 @@ func initRoutes(mux *http.ServeMux, manager *middleware.Manager) {
 	)
 
 	mux.Handle(
-		"GET /route",
+		"PUT /products/{id}",
 		manager.With(
-			http.HandlerFunc(handlers.Test),
+			http.HandlerFunc(handlers.UpdateProduct),
 		),
 	)
 }

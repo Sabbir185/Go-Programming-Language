@@ -7,5 +7,5 @@ import (
 )
 
 func GetProducts(w http.ResponseWriter, r *http.Request) {
-	utils.HandleJsonResponse(w, database.Productlist, 200)
+	utils.SendJSONData(w, database.List(), 200)
 }

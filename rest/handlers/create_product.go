@@ -4,6 +4,7 @@ import (
 	"ecommerce/database"
 	"ecommerce/utils"
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -11,10 +12,13 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var newProduct database.Product
 
 	decoder := json.NewDecoder(r.Body)
-	decoder.Decode(&newProduct)
+	err := decoder.Decode(&newProduct)
+	if err != nil {
+		log.Fatal(err)
+		http.Error(w, "Please provide me a valid json", 400)
+		return
+	}
 
-	newProduct.ID = len(database.Productlist) + 1
-	database.Productlist = append(database.Productlist, newProduct)
-
-	utils.HandleJsonResponse(w, newProduct, 201)
+	createdProduct := database.Store(newProduct)
+	utils.SendJSONData(w, createdProduct, 201)
 }
