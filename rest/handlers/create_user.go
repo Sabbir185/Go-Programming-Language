@@ -14,7 +14,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&newUser)
 	if err != nil {
 		fmt.Println(err)
-		http.Error(w, "Invalid Requested Data", http.StatusNotFound)
+		http.Error(w, "Invalid Requested Data", http.StatusBadRequest)
 		return
 	}
 	newUser = newUser.Store()
