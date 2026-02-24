@@ -54,10 +54,6 @@ func AuthenticateJWT(next http.Handler) http.Handler {
 			return
 		}
 
-		fmt.Printf("JWT signature: %s\n", signature)
-		fmt.Printf("JWT newSignature: %s\n", newSignature)
-		fmt.Printf("Access token: %s\n", accessToken)
-
 		next.ServeHTTP(w, r)
 	})
 }
