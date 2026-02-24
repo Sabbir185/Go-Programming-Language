@@ -9,10 +9,9 @@ import (
 
 func Serve() {
 	cnf := config.GetConfig()
-
 	userHandler := user.NewHandler()
 	productHandler := product.NewHandler()
 
-	server := rest.NewServer(userHandler, productHandler)
-	server.Start(cnf)
+	server := rest.NewServer(cnf, userHandler, productHandler)
+	server.Start()
 }
