@@ -10,10 +10,10 @@ import (
 
 func Serve() {
 	cnf := config.GetConfig()
-	middleware := middleware.NewMiddlewares(cnf)
+	middlewares := middleware.NewMiddlewares(cnf)
 
 	userHandler := user.NewHandler()
-	productHandler := product.NewHandler(middleware)
+	productHandler := product.NewHandler(middlewares)
 
 	server := rest.NewServer(cnf, userHandler, productHandler)
 	server.Start()
