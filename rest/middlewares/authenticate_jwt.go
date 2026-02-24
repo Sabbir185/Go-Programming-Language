@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"ecommerce/config"
 	"ecommerce/utils"
-	"fmt"
 	"net/http"
 	"strings"
 )
