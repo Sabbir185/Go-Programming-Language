@@ -1,4 +1,4 @@
-package handlers
+package user
 
 import (
 	"ecommerce/config"
@@ -14,7 +14,7 @@ type LoginPayload struct {
 	Password string `json:"password"`
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var LoginData LoginPayload
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&LoginData)
@@ -22,7 +22,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid Requested Data", http.StatusBadRequest)
 		return
 	}
-	
+
 	user := database.MatchUserCredentials(LoginData.Email, LoginData.Password)
 	fmt.Println(user)
 	if user == nil {
