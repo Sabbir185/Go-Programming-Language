@@ -1,11 +1,8 @@
 package user
 
 import (
-	"ecommerce/config"
-	"ecommerce/database"
 	"ecommerce/utils"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -23,15 +20,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := database.MatchUserCredentials(LoginData.Email, LoginData.Password)
-	fmt.Println(user)
+	user, err := h.userRepo.MatchUserCredentials(LoginData.Email, LoginData.Password)
 	if user == nil {
 		http.Error(w, "Invalid user credentials", http.StatusBadRequest)
 		return
 	}
 
-	cnf := config.GetConfig()
-	accessToken, err := utils.CreateJWT(cnf.JwtSecret, utils.Payload{
+	accessToken, err := utils.CreateJWT(h.cnf.JwtSecret, utils.Payload{
 		Sub:         user.ID,
 		FirstName:   user.FirstName,
 		LastName:    user.LastName,
