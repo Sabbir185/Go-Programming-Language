@@ -9,6 +9,7 @@ import (
 	"ecommerce/rest/handlers/user"
 	middleware "ecommerce/rest/middlewares"
 	"fmt"
+	"os"
 )
 
 func Serve() {
@@ -17,7 +18,7 @@ func Serve() {
 	dbCon, err := db.NewConnection()
 	if err != nil {
 		fmt.Printf("Error connecting to database: %v\n", err)
-		return
+		os.Exit(1)
 	}
 	fmt.Println("Successfully connected to the database", dbCon)
 
