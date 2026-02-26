@@ -2,15 +2,24 @@ package cmd
 
 import (
 	"ecommerce/config"
+	"ecommerce/infra/db"
 	"ecommerce/repo"
 	"ecommerce/rest"
 	"ecommerce/rest/handlers/product"
 	"ecommerce/rest/handlers/user"
 	middleware "ecommerce/rest/middlewares"
+	"fmt"
 )
 
 func Serve() {
 	cnf := config.GetConfig()
+
+	dbCon, err := db.NewConnection()
+	if err != nil {
+		fmt.Printf("Error connecting to database: %v\n", err)
+		return
+	}
+	fmt.Println("Successfully connected to the database", dbCon)
 
 	productRepo := repo.NewProductRepo()
 	userRepo := repo.NewUserRepo()
