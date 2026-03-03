@@ -19,8 +19,10 @@ type userRepo struct {
 	users []*User
 }
 
-func NewUserRepo() *userRepo {
-	return &userRepo{}
+func NewUserRepo() UserRepo {
+	return &userRepo{
+		users: make([]*User, 0),
+	}
 }
 
 func (r *userRepo) Create(u User) (*User, error) {

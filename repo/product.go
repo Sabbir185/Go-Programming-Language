@@ -21,8 +21,10 @@ type productRepo struct {
 }
 
 // constructor or condtructor function
-func NewProductRepo() *productRepo {
-	repo := &productRepo{}
+func NewProductRepo() ProductRepo {
+	repo := &productRepo{
+		productList: make([]*Product, 0),
+	}
 	generateInitialProducts(repo)
 	return repo
 }
