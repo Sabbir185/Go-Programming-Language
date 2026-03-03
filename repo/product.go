@@ -21,7 +21,7 @@ type productRepo struct {
 }
 
 // constructor or condtructor function
-func NewProductRepo() ProductRepo {
+func NewProductRepo() *productRepo {
 	repo := &productRepo{}
 	generateInitialProducts(repo)
 	return repo
