@@ -1,12 +1,18 @@
 package repo
 
+import (
+	"database/sql"
+
+	"github.com/jmoiron/sqlx"
+)
+
 type User struct {
-	ID          int    `json:"id"`
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	IsShopOwner bool   `json:"is_shop_owner"`
+	ID          int    `json:"id" db:"id"`
+	FirstName   string `json:"first_name" db:"first_name"`
+	LastName    string `json:"last_name" db:"last_name"`
+	Email       string `json:"email" db:"email"`
+	Password    string `json:"password" db:"password"`
+	IsShopOwner bool   `json:"is_shop_owner" db:"is_shop_owner"`
 }
 
 type UserRepo interface {
@@ -16,38 +22,68 @@ type UserRepo interface {
 }
 
 type userRepo struct {
-	users []*User
+	db *sqlx.DB
 }
 
-func NewUserRepo() UserRepo {
+func NewUserRepo(db *sqlx.DB) UserRepo {
 	return &userRepo{
-		users: make([]*User, 0),
+		db: db,
 	}
 }
 
 func (r *userRepo) Create(u User) (*User, error) {
-	if u.ID != 0 {
-		return &u, nil
+	query := `
+		INSERT INTO users (first_name, last_name, email, password, is_shop_owner)
+		VALUES (:first_name, :last_name, :email, :password, :is_shop_owner)
+		RETURNING id
+	`
+	var userId int
+	rows, err := r.db.NamedQuery(query, u)
+	if err != nil {
+		return nil, err
 	}
-	u.ID = len(r.users) + 1
-	r.users = append(r.users, &u)
+	if rows.Next() {
+		err = rows.Scan(&userId)
+		if err != nil {
+			return nil, err
+		}
+	}
+	u.ID = userId
 	return &u, nil
 }
 
 func (r *userRepo) Find(email, password string) (*User, error) {
-	for _, user := range r.users {
-		if user.Email == email && user.Password == password {
-			return user, nil
+	var user User
+	query := `
+		SELECT id, first_name, last_name, email, password, is_shop_owner
+		FROM users
+		WHERE email = $1 AND password = $2
+		LIMIT 1
+	`
+	err := r.db.Get(&user, query, email, password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
 		}
+		return nil, err
 	}
-	return nil, nil
+	return &user, nil
 }
 
 func (r *userRepo) MatchUserCredentials(email, password string) (*User, error) {
-	for _, user := range r.users {
-		if user.Email == email && user.Password == password {
-			return user, nil
+	var user User
+	query := `
+		SELECT id, first_name, last_name, email, password, is_shop_owner
+		FROM users
+		WHERE email = $1 AND password = $2
+		LIMIT 1
+	`
+	err := r.db.Get(&user, query, email, password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
 		}
+		return nil, err
 	}
-	return nil, nil
+	return &user, nil
 }

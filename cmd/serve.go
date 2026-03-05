@@ -23,7 +23,7 @@ func Serve() {
 	fmt.Println("Successfully connected to the database", dbCon)
 
 	productRepo := repo.NewProductRepo()
-	userRepo := repo.NewUserRepo()
+	userRepo := repo.NewUserRepo(dbCon)
 
 	middlewares := middleware.NewMiddlewares(cnf)
 
