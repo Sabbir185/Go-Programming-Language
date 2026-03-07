@@ -1,11 +1,17 @@
 package repo
 
+import (
+	"database/sql"
+
+	"github.com/jmoiron/sqlx"
+)
+
 type Product struct {
-	ID          int     `json:"id"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	ImgUrl      string  `json:"imageUrl"`
+	ID          int     `json:"id" db:"id"`
+	Title       string  `json:"title" db:"title"`
+	Description string  `json:"description" db:"description"`
+	Price       float64 `json:"price" db:"price"`
+	ImgUrl      string  `json:"img_url" db:"img_url"`
 }
 
 type ProductRepo interface {
@@ -17,93 +23,86 @@ type ProductRepo interface {
 }
 
 type productRepo struct {
-	productList []*Product
+	db *sqlx.DB
 }
 
 // constructor or condtructor function
-func NewProductRepo() ProductRepo {
-	repo := &productRepo{
-		productList: make([]*Product, 0),
+func NewProductRepo(db *sqlx.DB) ProductRepo {
+	return &productRepo{
+		db: db,
 	}
-	generateInitialProducts(repo)
-	return repo
 }
 
 func (r *productRepo) Create(p Product) (*Product, error) {
-	p.ID = len(r.productList) + 1
-	r.productList = append(r.productList, &p)
+	query := `
+		INSERT INTO products (title, description, price, img_url)
+		values ($1, $2, $3, $4)
+		RETURNING id
+	`
+	row := r.db.QueryRow(query, p.Title, p.Description, p.Price, p.ImgUrl)
+	err := row.Scan(&p.ID)
+	if err != nil {
+		return nil, err
+	}
 	return &p, nil
 }
 
 func (r *productRepo) Get(productID int) (*Product, error) {
-	for _, p := range r.productList {
-		if p.ID == productID {
-			return p, nil
+	query := `
+		SELECT id, title, description, price, img_url
+		FROM products
+		WHERE id = $1
+	`
+	var product Product
+	err := r.db.Get(&product, query, productID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
 		}
+		return nil, err
 	}
-	return nil, nil
+	return &product, nil
 }
 
 func (r *productRepo) List() ([]*Product, error) {
-	return r.productList, nil
+	query := `
+		SELECT id, title, description, price, img_url
+		FROM products
+	`
+	var products []*Product
+	err := r.db.Select(&products, query)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return products, nil
 }
 
 func (r *productRepo) Delete(productID int) error {
-	var temp []*Product
-	for _, p := range r.productList {
-		if p.ID != productID {
-			temp = append(temp, p)
-		}
+	query := `
+		DELETE FROM products where id = $1
+	`
+	_, err := r.db.Exec(query, productID)
+	if err != nil {
+		return err
 	}
-	r.productList = temp
+
 	return nil
 }
 
 func (r *productRepo) Update(product Product) (*Product, error) {
-	for i, p := range r.productList {
-		if p.ID == product.ID {
-			r.productList[i] = &product
-			return &product, nil
-		}
+	query := `
+		UPDATE products
+		SET title = $1, description = $2, price = $3, img_url = $4
+		WHERE id = $5 
+	`
+	row := r.db.QueryRow(query, product.Title, product.Description, product.Price, product.ImgUrl, product.ID)
+	err := row.Err()
+	if err != nil {
+		return nil, err
 	}
-	return nil, nil
-}
 
-func generateInitialProducts(r *productRepo) {
-	p1 := &Product{
-		ID:          1,
-		Title:       "Product 1",
-		Price:       19.99,
-		Description: "This is the first product.",
-		ImgUrl:      "http://example.com/product1.jpg",
-	}
-	p2 := &Product{
-		ID:          2,
-		Title:       "Product 2",
-		Price:       29.99,
-		Description: "This is the second product.",
-		ImgUrl:      "http://example.com/product2.jpg",
-	}
-	p3 := &Product{
-		ID:          3,
-		Title:       "Product 3",
-		Price:       39.99,
-		Description: "This is the third product.",
-		ImgUrl:      "http://example.com/product3.jpg",
-	}
-	p4 := &Product{
-		ID:          4,
-		Title:       "Product 4",
-		Price:       49.99,
-		Description: "This is the fourth product.",
-		ImgUrl:      "http://example.com/product4.jpg",
-	}
-	p5 := &Product{
-		ID:          5,
-		Title:       "Product 5",
-		Price:       59.99,
-		Description: "This is the fifth product.",
-		ImgUrl:      "http://example.com/product5.jpg",
-	}
-	r.productList = append(r.productList, p1, p2, p3, p4, p5)
+	return &product, nil
 }
