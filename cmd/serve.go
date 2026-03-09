@@ -20,7 +20,13 @@ func Serve() {
 		fmt.Printf("Error connecting to database: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Println("Successfully connected to the database", dbCon)
+	fmt.Println("Successfully connected to the database")
+
+	err = db.MigrateDB(dbCon, "./migrations")
+	if err != nil {
+		fmt.Printf("Error migrating database: %v\n", err)
+		os.Exit(1)
+	}
 
 	productRepo := repo.NewProductRepo(dbCon)
 	userRepo := repo.NewUserRepo(dbCon)
