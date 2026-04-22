@@ -4,6 +4,7 @@ import (
 	"ecommerce/utils"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
@@ -20,13 +21,29 @@ func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
 		limit = 10
 	}
 
-	products, err := h.svr.List(page, limit)
-	if err != nil {
-		http.Error(w, "Failed to get products", 500)
-		return
-	}
+	var wg sync.WaitGroup
+	var p any
+	var c int64
 
-	count := h.svr.Count()
+	wg.Add(1)
+	go func() {
+		defer wg.Add(-1)
+		products, err := h.svr.List(page, limit)
+		if err != nil {
+			http.Error(w, "Failed to get products", 500)
+			return
+		}
+		p = products
+	}()
 
-	utils.SendPaginatedData(w, products, count, int64(page), int64(limit))
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		count := h.svr.Count()
+		c = count
+	}()
+
+	wg.Wait()
+
+	utils.SendPaginatedData(w, p, c, int64(page), int64(limit))
 }
