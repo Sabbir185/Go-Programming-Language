@@ -16,7 +16,7 @@ func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.productRepo.Delete(id)
+	err = h.svr.Delete(id)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Failed to delete product", 500)

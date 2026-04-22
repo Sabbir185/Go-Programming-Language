@@ -15,7 +15,7 @@ func (h *Handler) GetProductByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, err := h.productRepo.Get(id)
+	product, err := h.svr.Get(id)
 
 	if err != nil {
 		http.Error(w, "Failed to get product", 500)
