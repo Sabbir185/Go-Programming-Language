@@ -39,8 +39,8 @@ func (svr *service) Get(id int) (*domain.Product, error) {
 	}
 	return prod, nil
 }
-func (svr *service) List() ([]*domain.Product, error) {
-	prods, err := svr.prodRepo.List()
+func (svr *service) List(page, limit int) ([]*domain.Product, error) {
+	prods, err := svr.prodRepo.List(page, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -48,6 +48,10 @@ func (svr *service) List() ([]*domain.Product, error) {
 		return nil, err
 	}
 	return prods, nil
+}
+func (svr *service) Count() int64 {
+	count := svr.prodRepo.Count()
+	return count
 }
 func (svr *service) Update(product domain.Product) (*domain.Product, error) {
 	prod, err := svr.prodRepo.Update(product)
