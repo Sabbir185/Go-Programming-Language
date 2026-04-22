@@ -17,7 +17,7 @@ func (svr *service) Create(product domain.Product) (*domain.Product, error) {
 	if err != nil {
 		return nil, err
 	}
-	if prod != nil {
+	if prod == nil {
 		return nil, err
 	}
 	return prod, nil
@@ -34,7 +34,7 @@ func (svr *service) Get(id int) (*domain.Product, error) {
 	if err != nil {
 		return nil, err
 	}
-	if prod != nil {
+	if prod == nil {
 		return nil, err
 	}
 	return prod, nil
@@ -44,7 +44,7 @@ func (svr *service) List() ([]*domain.Product, error) {
 	if err != nil {
 		return nil, err
 	}
-	if prods != nil {
+	if prods == nil {
 		return nil, err
 	}
 	return prods, nil
@@ -54,7 +54,7 @@ func (svr *service) Update(product domain.Product) (*domain.Product, error) {
 	if err != nil {
 		return nil, err
 	}
-	if prod != nil {
+	if prod == nil {
 		return nil, err
 	}
 	return prod, nil
